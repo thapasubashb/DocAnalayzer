@@ -20,7 +20,7 @@ const Home = () => {
           AI  — Where Law Meets AI. Upload judgments & pleadings and
           receive structured briefs in seconds: facts, issues, holding, reasoning & orders.
         </p>
-
+        
         <div className="flex gap-4 pt-4">
           <button className="bg-[#d4af37] text-black font-semibold px-6 py-2 rounded-md hover:bg-[#c29e2f] transition-colors">
             Upload a Case
