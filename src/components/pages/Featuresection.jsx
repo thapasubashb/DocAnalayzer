@@ -7,28 +7,28 @@ const Featuresection = () => {
       title: "Upload your case (PDF)",
       description:
         "Drag & drop, paste a link, or pick from your files. We extract text from judgments, orders, and pleadings. Scanned pages are handled with OCR fallbacks. Small cases finish in seconds.",
-      image: "/hourglass.jpg",
+       image: "src/assets/upload.jpeg",
     },
     {
       id: 2,
       title: "AI builds your brief",
       description:
         "Structured sections you expect — Facts, Issues, Holding, Reasoning, Order — plus normalized metadata (court, date, parties, judges).",
-      image: "/brief-structure.png",
+      image: "src/assets/structure.png",
     },
     {
       id: 3,
       title: "Premium insights",
       description:
         "Find similar precedents, detect statutes, and get strategic recommendations (pros/cons, remedies) for drafting and argument prep.",
-      image: "/courtroom.jpg",
+      image: "src/assets/court.jpeg",
     },
     {
       id: 4,
       title: "Export & Share",
       description:
         "Download a polished brief as PDF or DOCX, copy sections to clipboard, or share a secure link with teammates. Coming soon: one-click citation appendix and email to client.",
-      image: "/export-share.png",
+      image: "src/assets/exp.png",
     },
   ];
 
@@ -63,7 +63,7 @@ const Featuresection = () => {
             <img
               src={feature.image}
               alt={feature.title}
-              className="rounded-md border border-gray-700 object-cover w-full h-48"
+              className=" object-cover rounded-md border border-gray-700  w-full h-48"
             />
           </div>
         ))}

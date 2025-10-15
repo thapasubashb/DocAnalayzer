@@ -17,7 +17,7 @@ const Home = () => {
           Where Law meets AI.
         </h1>
         <p className="text-gray-300 leading-relaxed">
-          Swastik AI — Where Law Meets AI. Upload judgments & pleadings and
+          AI  — Where Law Meets AI. Upload judgments & pleadings and
           receive structured briefs in seconds: facts, issues, holding, reasoning & orders.
         </p>
 
@@ -31,14 +31,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Right image */}
-      <div className="relative z-10 mt-12 md:mt-0 flex justify-center">
-        <img
-          src="/lady-justice.png"
-          alt="Lady Justice"
-          className="max-h-[500px] md:max-h-[650px] drop-shadow-2xl"
-        />
-      </div>
+   
     </section>
     </>
   )

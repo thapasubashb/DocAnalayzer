@@ -6,7 +6,6 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-20 py-4 bg-black/70 backdrop-blur-sm z-20">
       {/* Logo */}
       <div className="flex items-center space-x-2">
-        <img src="/swastik-logo.png" alt="Swastik AI" className="h-8" />
         <span className="font-semibold text-white">
           Legal Analayzer <span className="text-xs text-gray-400">BETA</span>
         </span>
