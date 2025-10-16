@@ -1,6 +1,8 @@
-import React from 'react'
- const WhatYouGetPage = () => {
- const features = [
+import React from "react";
+import "./WhatYouGetPage.css"; // Import CSS file
+
+const WhatYouGetPage = () => {
+  const features = [
     {
       title: "Short AI Summary",
       description:
@@ -18,8 +20,7 @@ import React from 'react'
     },
     {
       title: "Citations & Integrity",
-      description:
-        "Surface citations and flag anomalies (premium focus).",
+      description: "Surface citations and flag anomalies (premium focus).",
     },
     {
       title: "Precedent Finder",
@@ -28,10 +29,10 @@ import React from 'react'
     },
     {
       title: "Statutes Detection",
-      description:
-        "Regex+LLM pipeline to detect relevant statutes (premium).",
+      description: "Regex+LLM pipeline to detect relevant statutes (premium).",
     },
   ];
+
   return (
     <section className="bg-black text-gray-200 py-20 px-6 md:px-20">
       <h2 className="text-center text-3xl md:text-4xl font-bold text-[#d4af37] mb-12">
@@ -42,7 +43,7 @@ import React from 'react'
         {features.map((feature, index) => (
           <div
             key={index}
-            className="border border-gray-700 rounded-xl p-6 bg-[#0b0b0b] hover:border-[#d4af37] transition"
+            className="feature-card border border-gray-700 rounded-xl p-6 bg-[#0b0b0b] hover:border-[#d4af37]"
           >
             <h3 className="text-lg font-semibold text-[#d4af37] mb-2">
               {feature.title}
@@ -53,7 +54,6 @@ import React from 'react'
       </div>
     </section>
   );
-}
+};
 
-
-export default WhatYouGetPage
+export default WhatYouGetPage;

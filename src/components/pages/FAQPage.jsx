@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 
 const FAQPage = () => {
-
-      const faqs = [
+  const faqs = [
     {
       question: "What types of PDFs does Swastik AI support?",
       answer:
@@ -25,49 +24,49 @@ const FAQPage = () => {
     },
   ];
 
-  const [openIndex, setOpenIndex] = useState(null); 
-  
+  const [openIndex, setOpenIndex] = useState(null);
+
   return (
     <>
-     <main className="min-h-screen bg-black text-white px-6 md:px-20 py-16">
-      <header className="max-w-3xl mx-auto text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-[#d4af37]">
-          Frequently Asked Questions
-        </h1>
-        <p className="mt-3 text-gray-300">
-          Everything you need to know about Swastik AI.
-        </p>
-      </header>
+      <main className="min-h-screen bg-black text-white px-6 md:px-20 py-16">
+        <header className="max-w-3xl mx-auto text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-[#d4af37]">
+            Frequently Asked Questions
+          </h1>
+          <p className="mt-3 text-gray-300">
+            Everything you need to know about Swastik AI.
+          </p>
+        </header>
 
-      <section className="max-w-3xl mx-auto space-y-4">
-        {faqs.map((faq, idx) => (
-          <div
-            key={idx}
-            className="border border-gray-700 rounded-lg bg-black/60 p-4"
-          >
-            <button
-              onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-              className="w-full text-left flex justify-between items-center focus:outline-none"
+        <section className="max-w-3xl mx-auto space-y-4">
+          {faqs.map((faq, idx) => (
+            <div
+              key={idx}
+              className="border border-gray-700 rounded-lg bg-black/60 p-4"
             >
-              <span className="font-medium text-[#d4af37]">
-                {faq.question}
-              </span>
-              <span className="text-[#d4af37] text-xl">
-                {openIndex === idx ? "−" : "+"}
-              </span>
-            </button>
+              <button
+                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                className="w-full text-left flex justify-between items-center focus:outline-none"
+              >
+                <span className="font-medium text-[#d4af37]">
+                  {faq.question}
+                </span>
+                <span className="text-[#d4af37] text-xl">
+                  {openIndex === idx ? "−" : "+"}
+                </span>
+              </button>
 
-            {openIndex === idx && (
-              <p className="mt-3 text-gray-300 text-sm leading-relaxed">
-                {faq.answer}
-              </p>
-            )}
-          </div>
-        ))}
-      </section>
-    </main>
+              {openIndex === idx && (
+                <p className="mt-3 text-gray-300 text-sm leading-relaxed">
+                  {faq.answer}
+                </p>
+              )}
+            </div>
+          ))}
+        </section>
+      </main>
     </>
-  )
-}
+  );
+};
 
-export default FAQPage
+export default FAQPage;

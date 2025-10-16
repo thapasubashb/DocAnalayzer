@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const Home = () => {
   return (
@@ -22,9 +23,9 @@ const Home = () => {
         </p>
         
         <div className="flex gap-4 pt-4">
-          <button className="bg-[#d4af37] text-black font-semibold px-6 py-2 rounded-md hover:bg-[#c29e2f] transition-colors">
+          <Link to= "/file"> <button className="bg-[#d4af37] text-black font-semibold px-6 py-2 rounded-md hover:bg-[#c29e2f] transition-colors">
             Upload a Case
-          </button>
+          </button></Link>
           <button className="border border-gray-400 text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors">
             See how it works
           </button>
