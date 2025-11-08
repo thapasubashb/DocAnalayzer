@@ -2,6 +2,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from database.chroma_store import collection
 import os
 import textwrap
+import requests
 
 MODEL_NAME = os.getenv("FLAN_MODEL", "google/flan-t5-small")
 
@@ -20,16 +21,26 @@ def ingest_document(doc_id: str, text: str, meta: dict | None = None, chunk_size
     collection.add(documents=chunks, metadatas=metadatas, ids=ids)
 
 def ask_question(question: str, doc_id: str | None = None):
-    # retrieve top 3 chunks relevant to question
+    # if a document exists, use its context
     if doc_id:
         results = collection.query(query_texts=[question], n_results=3, where={"doc_id": doc_id})
+        docs = results.get("documents", [[]])[0]
+        context = "\n\n".join(docs).strip()
+        prompt = f"Use the context below to answer the question.\n\nContext:\n{context}\n\nQuestion: {question}\nAnswer concisely:"
     else:
-        results = collection.query(query_texts=[question], n_results=3)
-    docs = results.get("documents", [[]])[0]
-    context = "\n\n".join(docs).strip()
-    prompt = f"Use the context to answer the question.\n\nContext:\n{context}\n\nQuestion: {question}\nAnswer concisely:"
-    # compose model input
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
-    outputs = model.generate(**inputs, max_new_tokens=256)
-    answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return answer
+        # no document, just normal chat
+        prompt = f"Question: {question}\nAnswer naturally and helpfully:"
+
+    payload = {
+        "model": "mistral",
+        "prompt": prompt,
+        "stream": False
+    }
+
+    response = requests.post("http://localhost:11434/api/generate", json=payload)
+
+    if response.status_code == 200:
+        return response.json().get("response", "")
+    else:
+        return f"Error: {response.text}"
+

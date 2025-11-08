@@ -1,13 +1,43 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const API_BASE = "http://127.0.0.1:8000";
 
+// Typing animation + markdown renderer
+function TypingText({ text, speed = 18, onComplete }) {
+  const [display, setDisplay] = useState("");
+  const iRef = useRef(0);
+
+  useEffect(() => {
+    setDisplay("");
+    iRef.current = 0;
+    if (!text) return;
+
+    const timer = setInterval(() => {
+      iRef.current += 1;
+      setDisplay(text.slice(0, iRef.current));
+      if (iRef.current >= text.length) {
+        clearInterval(timer);
+        if (onComplete) onComplete();
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [text, speed, onComplete]);
+
+  return (
+    <div className="prose prose-invert max-w-none text-gray-100">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{display}</ReactMarkdown>
+    </div>
+  );
+}
+
 const CaseFile = () => {
   const [file, setFile] = useState(null);
-  const [summary, setSummary] = useState("");
   const [clauses, setClauses] = useState([]);
   const [messages, setMessages] = useState([
     { from: "bot", text: "Hello! Let's analyze your document." },
@@ -15,6 +45,11 @@ const CaseFile = () => {
   ]);
   const [input, setInput] = useState("");
   const [currentDocId, setCurrentDocId] = useState(null);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleFileUpload = async (e) => {
     const uploadedFile = e.target.files[0];
@@ -38,20 +73,18 @@ const CaseFile = () => {
     }
 
     const data = await res.json();
-    setSummary(data.summary);
     setClauses(data.clauses || []);
     setCurrentDocId(data.doc_id);
 
     setMessages((p) => [
       ...p,
       { from: "bot", text: "✅ File analyzed successfully." },
-      { from: "bot", text: `Summary: ${data.summary}` },
+      { from: "bot", text: `**Summary:**\n${data.summary}` },
     ]);
   };
 
   const handleRemoveFile = () => {
     setFile(null);
-    setSummary("");
     setClauses([]);
     setCurrentDocId(null);
   };
@@ -69,18 +102,31 @@ const CaseFile = () => {
       method: "POST",
       body: formData,
     });
+
     if (!res.ok) {
       const err = await res.text();
       setMessages((p) => [...p, { from: "bot", text: `Error: ${err}` }]);
       return;
     }
+
     const data = await res.json();
     setMessages((p) => [...p, { from: "bot", text: data.answer }]);
   };
 
+  const messageVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
     <div className="relative min-h-screen bg-gray-900 flex overflow-hidden">
-      <div className="w-1/3 min-h-screen p-8 flex flex-col items-start border-r border-gray-800">
+      {/* Left Panel */}
+      <motion.div
+        className="w-1/3 min-h-screen p-8 flex flex-col items-start border-r border-gray-800"
+        initial={{ x: -40, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <Link to="/">
           <button className="mb-6 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
             Back to Home
@@ -89,13 +135,17 @@ const CaseFile = () => {
 
         <motion.div
           className="bg-gray-800 border border-gray-700 rounded-2xl shadow-xl p-8 text-center w-full"
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
           <Upload className="mx-auto text-blue-400 mb-4" size={40} />
-          <h2 className="text-white text-lg font-semibold mb-2">Upload Your Case File</h2>
-          <p className="text-gray-400 text-sm mb-6">Supported formats: PDF, DOCX, TXT</p>
+          <h2 className="text-white text-lg font-semibold mb-2">
+            Upload Your Case File
+          </h2>
+          <p className="text-gray-400 text-sm mb-6">
+            Supported formats: PDF, DOCX, TXT
+          </p>
           <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition">
             + Add File
             <input type="file" className="hidden" onChange={handleFileUpload} />
@@ -107,50 +157,95 @@ const CaseFile = () => {
             className="mt-6 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl p-6 w-full flex justify-between items-center"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
           >
             <div className="flex items-center space-x-3">
               <Upload className="text-blue-400" size={22} />
               <p className="text-white text-sm">{file.name}</p>
             </div>
-            <button>
-              <X
-                size={18}
-                onClick={handleRemoveFile}
-                className="text-red-400 hover:text-red-500"
-              />
-            </button>
+            <X
+              size={18}
+              onClick={handleRemoveFile}
+              className="text-red-400 hover:text-red-500 cursor-pointer"
+            />
           </motion.div>
         )}
 
         {clauses.length > 0 && (
-          <div className="mt-6 bg-gray-800 p-4 rounded-xl border border-gray-700 w-full text-sm">
+          <motion.div
+            className="mt-6 bg-gray-800 p-4 rounded-xl border border-gray-700 w-full text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
             <h3 className="text-white font-semibold mb-2">Detected Clauses:</h3>
             <ul className="space-y-1">
               {clauses.map((c, i) => (
                 <li key={i} className="text-gray-300">
-                  <span className="text-blue-400 font-medium">{c.keyword}:</span> {c.sentence}
+                  <span className="text-blue-400 font-medium">{c.keyword}:</span>{" "}
+                  {c.sentence}
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
-      <motion.div className="flex-1 flex flex-col bg-gray-900" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      {/* Chat Area */}
+      <motion.div
+        className="flex-1 flex flex-col bg-gray-900"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
-          {messages.map((msg, index) => (
-            <div key={index} className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-xs md:max-w-md p-3 rounded-xl text-sm ${msg.from === "user" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-200"}`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
+          <AnimatePresence>
+            {messages.map((message, index) => (
+              <motion.div
+                key={index}
+                variants={messageVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={{ duration: 0.25 }}
+                className={`flex ${
+                  message.from === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[75%] p-4 rounded-2xl shadow-md ${
+                    message.from === "user"
+                      ? "bg-blue-600 text-white ml-auto"
+                      : "bg-gray-800 text-gray-100"
+                  }`}
+                >
+                  {message.from === "bot" ? (
+                    <TypingText text={message.text} />
+                  ) : (
+                    <div className="whitespace-pre-line">{message.text}</div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          <div ref={chatEndRef} />
         </div>
 
+        {/* Input Bar */}
         <div className="border-t border-gray-800 p-4 flex items-center bg-gray-900">
-          <input type="text" placeholder="Type a message..." className="flex-1 px-3 py-2 text-sm bg-gray-800 text-white rounded-l-md outline-none" value={input} onChange={(e) => setInput(e.target.value)} />
-          <button onClick={handleSend} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-md text-sm text-white">Send</button>
+          <input
+            type="text"
+            placeholder="Type a message..."
+            className="flex-1 px-3 py-2 text-sm bg-gray-800 text-white rounded-l-md outline-none"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSend();
+            }}
+          />
+          <button
+            onClick={handleSend}
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-md text-sm text-white"
+          >
+            Send
+          </button>
         </div>
       </motion.div>
     </div>
