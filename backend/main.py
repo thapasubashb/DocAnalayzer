@@ -31,20 +31,15 @@ def root():
 
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
-    # Save uploaded file
     saved_path = save_upload_file(file, UPLOAD_DIR)
     try:
         text = await extract_text_from_upload(saved_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to extract text: {e}")
 
-    # Summarize
     summary = summarize_text(text)
-
-    # Clause detection
     clauses = detect_clauses(text)
 
-    # Index into Chroma for chat retrieval
     doc_id = str(uuid4())
     ingest_document(doc_id=doc_id, text=text, meta={"filename": file.filename})
 
