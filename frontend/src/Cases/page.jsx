@@ -216,109 +216,257 @@ const CaseFile = () => {
 
         {/* Sidebar Scroll Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-          {/* Upload Card */}
-          <div className="relative">
-            <input
-              type="file"
-              id="file-upload"
-              className="hidden"
-              onChange={handleFileUpload}
-              disabled={isUploading}
-            />
-            <label
-              htmlFor="file-upload"
-              className={`flex flex-col items-center justify-center border border-dashed rounded-xl p-8 text-center cursor-pointer transition relative overflow-hidden group
-                ${
-                  isUploading
-                    ? "border-emerald-500/40 bg-emerald-500/5 cursor-not-allowed"
-                    : "border-zinc-800 hover:border-emerald-500/40 bg-[#141419]/40 hover:bg-[#16161e]/70 shadow-inner"
-                }`}
-            >
-              {isUploading ? (
-                <Loader2
-                  className="animate-spin text-emerald-400 mb-4"
-                  size={28}
-                />
-              ) : (
-                <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl mb-4 group-hover:border-emerald-500/30 group-hover:bg-zinc-800/50 transition-all duration-300">
-                  <Upload
-                    className="text-zinc-400 group-hover:text-emerald-400 transition-colors"
-                    size={22}
-                  />
+          <div className="flex items-center justify-between rounded-full border border-zinc-800 bg-zinc-950/60 p-1.5">
+            {slideLabels.map((label, index) => {
+              const isActive = activeSlide === index;
+              const isDone = activeSlide > index || (file && index === 0);
+              return (
+                <div
+                  key={label}
+                  className={`flex-1 text-center text-[10px] font-semibold uppercase tracking-[0.18em] rounded-full px-2 py-1.5 transition-all duration-300 ${
+                    isActive
+                      ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/20"
+                      : isDone
+                        ? "text-zinc-300"
+                        : "text-zinc-600"
+                  }`}
+                >
+                  {label}
                 </div>
-              )}
-              <span className="text-sm font-medium text-zinc-200 block mb-1 tracking-wide">
-                {isUploading ? "Ingesting Repository..." : "Load Case Dossier"}
-              </span>
-              <span className="text-xs text-zinc-500">
-                Secure PDF, DOCX, or TXT up to 25MB
-              </span>
-            </label>
+              );
+            })}
           </div>
 
-          {/* Active File State Container */}
-          <AnimatePresence>
-            {file && (
+          <AnimatePresence mode="wait">
+            {activeSlide === 0 && (
               <motion.div
-                className="bg-[#131318]/90 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-3 shadow-md shadow-black/40 backdrop-blur-sm"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                key="intake-slide"
+                initial={{ opacity: 0, x: 18, filter: "blur(8px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -18, filter: "blur(6px)" }}
+                transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-6"
               >
-                <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 flex-shrink-0">
-                    <FileText size={18} />
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-xs font-semibold text-zinc-300 truncate tracking-wide">
-                      {file.name}
-                    </p>
-                    <p className="text-[10px] font-mono tracking-tighter text-zinc-500 uppercase">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                  />
+                  <motion.label
+                    htmlFor="file-upload"
+                    initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    whileHover={
+                      !isUploading ? { y: -3, scale: 1.01 } : undefined
+                    }
+                    whileTap={!isUploading ? { scale: 0.99 } : undefined}
+                    transition={panelSpring}
+                    className={`flex flex-col items-center justify-center border border-dashed rounded-xl p-8 text-center cursor-pointer transition relative overflow-hidden group
+                      ${
+                        isUploading
+                          ? "border-emerald-500/40 bg-emerald-500/5 cursor-not-allowed"
+                          : "border-zinc-800 hover:border-emerald-500/40 bg-[#141419]/40 hover:bg-[#16161e]/70 shadow-inner"
+                      }`}
+                  >
+                    {isUploading ? (
+                      <Loader2
+                        className="animate-spin text-emerald-400 mb-4"
+                        size={28}
+                      />
+                    ) : (
+                      <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl mb-4 group-hover:border-emerald-500/30 group-hover:bg-zinc-800/50 transition-all duration-300">
+                        <Upload
+                          className="text-zinc-400 group-hover:text-emerald-400 transition-colors"
+                          size={22}
+                        />
+                      </div>
+                    )}
+                    <span className="text-sm font-medium text-zinc-200 block mb-1 tracking-wide">
+                      {isUploading
+                        ? "Ingesting Repository..."
+                        : "Load Case Dossier"}
+                    </span>
+                    <span className="text-xs text-zinc-500">
+                      Secure PDF, DOCX, or TXT up to 25MB
+                    </span>
+                  </motion.label>
                 </div>
-                <button
-                  onClick={handleRemoveFile}
-                  className="p-1.5 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 text-zinc-400 hover:text-rose-400 rounded-lg transition-all duration-200"
-                  aria-label="Remove document"
-                >
-                  <X size={14} />
-                </button>
+
+                <AnimatePresence>
+                  {file && (
+                    <motion.div
+                      layout
+                      className="bg-[#131318]/90 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-3 shadow-md shadow-black/40 backdrop-blur-sm"
+                      initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                      transition={panelSpring}
+                    >
+                      <div className="flex items-center space-x-3 overflow-hidden">
+                        <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 flex-shrink-0">
+                          <FileText size={18} />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-semibold text-zinc-300 truncate tracking-wide">
+                            {file.name}
+                          </p>
+                          <p className="text-[10px] font-mono tracking-tighter text-zinc-500 uppercase">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleRemoveFile}
+                        className="p-1.5 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 text-zinc-400 hover:text-rose-400 rounded-lg transition-all duration-200"
+                        aria-label="Remove document"
+                      >
+                        <X size={14} />
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+
+            {activeSlide === 1 && (
+              <motion.div
+                key="review-slide"
+                initial={{ opacity: 0, x: 18, filter: "blur(8px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -18, filter: "blur(6px)" }}
+                transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-4"
+              >
+                {file && (
+                  <motion.div
+                    layout
+                    className="bg-[#131318]/90 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-3 shadow-md shadow-black/40 backdrop-blur-sm"
+                    initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                    transition={panelSpring}
+                  >
+                    <div className="flex items-center space-x-3 overflow-hidden">
+                      <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 flex-shrink-0">
+                        <FileText size={18} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-semibold text-zinc-300 truncate tracking-wide">
+                          {file.name}
+                        </p>
+                        <p className="text-[10px] font-mono tracking-tighter text-zinc-500 uppercase">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleRemoveFile}
+                      className="p-1.5 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 text-zinc-400 hover:text-rose-400 rounded-lg transition-all duration-200"
+                      aria-label="Remove document"
+                    >
+                      <X size={14} />
+                    </button>
+                  </motion.div>
+                )}
+
+                {clauses.length > 0 && (
+                  <motion.div
+                    className="space-y-3 pt-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <div className="flex items-center gap-2 px-1">
+                      <ShieldCheck size={14} className="text-emerald-400" />
+                      <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+                        Isolated Provisions
+                      </h3>
+                    </div>
+                    <div className="space-y-2 max-h-[22rem] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800">
+                      {clauses.map((c, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -10, y: 8 }}
+                          animate={{ opacity: 1, x: 0, y: 0 }}
+                          transition={{
+                            duration: 0.28,
+                            delay: i * 0.04,
+                            ease: [0.22, 1, 0.36, 1],
+                          }}
+                          whileHover={{
+                            x: 2,
+                            borderColor: "rgba(113, 113, 122, 0.8)",
+                            backgroundColor: "rgba(20, 20, 27, 0.9)",
+                          }}
+                          className="p-3.5 bg-[#121217]/40 border border-zinc-800/80 rounded-xl hover:border-zinc-700/60 hover:bg-[#14141b]/70 transition-all duration-200 group"
+                        >
+                          <div className="text-[10px] font-bold tracking-wider text-emerald-400 mb-1.5 uppercase font-mono">
+                            // {c.keyword.replace(/_/g, " ")}
+                          </div>
+                          <div className="text-xs text-zinc-400 leading-relaxed group-hover:text-zinc-300 transition-colors">
+                            {c.sentence}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+
+            {activeSlide === 2 && (
+              <motion.div
+                key="query-slide"
+                initial={{ opacity: 0, x: 18, filter: "blur(8px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -18, filter: "blur(6px)" }}
+                transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-4"
+              >
+                {file && (
+                  <motion.div
+                    layout
+                    className="bg-[#131318]/90 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-3 shadow-md shadow-black/40 backdrop-blur-sm"
+                    initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                    transition={panelSpring}
+                  >
+                    <div className="flex items-center space-x-3 overflow-hidden">
+                      <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 flex-shrink-0">
+                        <FileText size={18} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-semibold text-zinc-300 truncate tracking-wide">
+                          {file.name}
+                        </p>
+                        <p className="text-[10px] font-mono tracking-tighter text-zinc-500 uppercase">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleRemoveFile}
+                      className="p-1.5 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 text-zinc-400 hover:text-rose-400 rounded-lg transition-all duration-200"
+                      aria-label="Remove document"
+                    >
+                      <X size={14} />
+                    </button>
+                  </motion.div>
+                )}
+
+                {clauses.length > 0 && (
+                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs text-emerald-200">
+                    Ready for legal interrogation. Ask a question to move
+                    through the extracted context.
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Extracted Clauses Accordion/List Section */}
-          {clauses.length > 0 && (
-            <motion.div
-              className="space-y-3 pt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="flex items-center gap-2 px-1">
-                <ShieldCheck size={14} className="text-emerald-400" />
-                <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
-                  Isolated Provisions
-                </h3>
-              </div>
-              <div className="space-y-2 max-h-[22rem] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800">
-                {clauses.map((c, i) => (
-                  <div
-                    key={i}
-                    className="p-3.5 bg-[#121217]/40 border border-zinc-800/80 rounded-xl hover:border-zinc-700/60 hover:bg-[#14141b]/70 transition-all duration-200 group"
-                  >
-                    <div className="text-[10px] font-bold tracking-wider text-emerald-400 mb-1.5 uppercase font-mono">
-                      // {c.keyword.replace(/_/g, " ")}
-                    </div>
-                    <div className="text-xs text-zinc-400 leading-relaxed group-hover:text-zinc-300 transition-colors">
-                      {c.sentence}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
         </div>
       </motion.div>
 
