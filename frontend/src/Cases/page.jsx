@@ -16,6 +16,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 const API_BASE = "http://127.0.0.1:8000";
+const panelSpring = { type: "spring", stiffness: 190, damping: 18, mass: 0.8 };
 
 // Typing animation + markdown renderer
 function TypingText({ text, speed = 12, onComplete }) {
