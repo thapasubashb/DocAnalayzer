@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Send, ArrowLeft, FileText, Scale, Loader2, ShieldCheck, CornerDownLeft } from "lucide-react";
+import {
+  Upload,
+  X,
+  Send,
+  ArrowLeft,
+  FileText,
+  Scale,
+  Loader2,
+  ShieldCheck,
+  CornerDownLeft,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -41,16 +51,41 @@ const CaseFile = () => {
   const [clauses, setClauses] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Welcome counsel. Secure analysis pipeline established." },
-    { from: "bot", text: "Upload your legal case brief, contract, or documentation to get started. I will index the contents for dynamic discovery queries." },
+    {
+      from: "bot",
+      text: "Welcome counsel. Secure analysis pipeline established.",
+    },
+    {
+      from: "bot",
+      text: "Upload your legal case brief, contract, or documentation to get started. I will index the contents for dynamic discovery queries.",
+    },
   ]);
   const [input, setInput] = useState("");
   const [currentDocId, setCurrentDocId] = useState(null);
+  const [activeSlide, setActiveSlide] = useState(0);
   const chatEndRef = useRef(null);
+  const slideLabels = ["Intake", "Review", "Query"];
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    if (!file) {
+      setActiveSlide(0);
+      return;
+    }
+
+    if (clauses.length > 0 && activeSlide < 1) {
+      const reviewTimer = setTimeout(() => setActiveSlide(1), 500);
+      return () => clearTimeout(reviewTimer);
+    }
+
+    if (currentDocId && activeSlide < 2) {
+      const queryTimer = setTimeout(() => setActiveSlide(2), 700);
+      return () => clearTimeout(queryTimer);
+    }
+  }, [file, clauses.length, currentDocId, activeSlide]);
 
   const handleFileUpload = async (e) => {
     const uploadedFile = e.target.files[0];
@@ -61,7 +96,13 @@ const CaseFile = () => {
     const formData = new FormData();
     formData.append("file", uploadedFile);
 
-    setMessages((p) => [...p, { from: "bot", text: "⏳ **Vectorizing System:** Parsing structure and indexing document metadata..." }]);
+    setMessages((p) => [
+      ...p,
+      {
+        from: "bot",
+        text: "⏳ **Vectorizing System:** Parsing structure and indexing document metadata...",
+      },
+    ]);
 
     try {
       const res = await fetch(`${API_BASE}/upload/`, {
@@ -84,11 +125,20 @@ const CaseFile = () => {
 
       setMessages((p) => [
         ...p,
-        { from: "bot", text: "✅ **Analysis complete.** Document structures mapped out successfully." },
+        {
+          from: "bot",
+          text: "✅ **Analysis complete.** Document structures mapped out successfully.",
+        },
         { from: "bot", text: `### Executive Abstract\n${data.summary}` },
       ]);
     } catch (error) {
-      setMessages((p) => [...p, { from: "bot", text: "❌ **Network Error:** Could not bridge connection to the analytical server." }]);
+      setMessages((p) => [
+        ...p,
+        {
+          from: "bot",
+          text: "❌ **Network Error:** Could not bridge connection to the analytical server.",
+        },
+      ]);
     } finally {
       setIsUploading(false);
     }
@@ -98,6 +148,7 @@ const CaseFile = () => {
     setFile(null);
     setClauses([]);
     setCurrentDocId(null);
+    setActiveSlide(0);
   };
 
   const handleSend = async () => {
@@ -126,13 +177,18 @@ const CaseFile = () => {
       const data = await res.json();
       setMessages((p) => [...p, { from: "bot", text: data.answer }]);
     } catch (error) {
-      setMessages((p) => [...p, { from: "bot", text: "System error: Failed to process document retrieval context." }]);
+      setMessages((p) => [
+        ...p,
+        {
+          from: "bot",
+          text: "System error: Failed to process document retrieval context.",
+        },
+      ]);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex overflow-hidden font-sans antialiased selection:bg-emerald-500/20">
-      
       {/* Left Sidebar Panel */}
       <motion.div
         className="w-[26rem] flex-shrink-0 bg-[#0f0f12] border-r border-zinc-800/80 flex flex-col h-screen"
@@ -142,8 +198,14 @@ const CaseFile = () => {
       >
         {/* Sidebar Header */}
         <div className="p-6 border-b border-zinc-800/60 flex items-center justify-between bg-[#121217]/50 backdrop-blur-md">
-          <Link to="/" className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-zinc-400 hover:text-zinc-200 transition group uppercase">
-            <ArrowLeft size={14} className="transform group-hover:-translate-x-0.5 transition-transform text-emerald-500" />
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-zinc-400 hover:text-zinc-200 transition group uppercase"
+          >
+            <ArrowLeft
+              size={14}
+              className="transform group-hover:-translate-x-0.5 transition-transform text-emerald-500"
+            />
             Terminal Home
           </Link>
           <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-md border border-emerald-500/20 shadow-sm shadow-emerald-500/5">
@@ -153,28 +215,43 @@ const CaseFile = () => {
 
         {/* Sidebar Scroll Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-          
           {/* Upload Card */}
           <div className="relative">
-            <input type="file" id="file-upload" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
+            <input
+              type="file"
+              id="file-upload"
+              className="hidden"
+              onChange={handleFileUpload}
+              disabled={isUploading}
+            />
             <label
               htmlFor="file-upload"
               className={`flex flex-col items-center justify-center border border-dashed rounded-xl p-8 text-center cursor-pointer transition relative overflow-hidden group
-                ${isUploading 
-                  ? "border-emerald-500/40 bg-emerald-500/5 cursor-not-allowed" 
-                  : "border-zinc-800 hover:border-emerald-500/40 bg-[#141419]/40 hover:bg-[#16161e]/70 shadow-inner"}`}
+                ${
+                  isUploading
+                    ? "border-emerald-500/40 bg-emerald-500/5 cursor-not-allowed"
+                    : "border-zinc-800 hover:border-emerald-500/40 bg-[#141419]/40 hover:bg-[#16161e]/70 shadow-inner"
+                }`}
             >
               {isUploading ? (
-                <Loader2 className="animate-spin text-emerald-400 mb-4" size={28} />
+                <Loader2
+                  className="animate-spin text-emerald-400 mb-4"
+                  size={28}
+                />
               ) : (
                 <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl mb-4 group-hover:border-emerald-500/30 group-hover:bg-zinc-800/50 transition-all duration-300">
-                  <Upload className="text-zinc-400 group-hover:text-emerald-400 transition-colors" size={22} />
+                  <Upload
+                    className="text-zinc-400 group-hover:text-emerald-400 transition-colors"
+                    size={22}
+                  />
                 </div>
               )}
               <span className="text-sm font-medium text-zinc-200 block mb-1 tracking-wide">
                 {isUploading ? "Ingesting Repository..." : "Load Case Dossier"}
               </span>
-              <span className="text-xs text-zinc-500">Secure PDF, DOCX, or TXT up to 25MB</span>
+              <span className="text-xs text-zinc-500">
+                Secure PDF, DOCX, or TXT up to 25MB
+              </span>
             </label>
           </div>
 
@@ -192,8 +269,12 @@ const CaseFile = () => {
                     <FileText size={18} />
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-xs font-semibold text-zinc-300 truncate tracking-wide">{file.name}</p>
-                    <p className="text-[10px] font-mono tracking-tighter text-zinc-500 uppercase">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p className="text-xs font-semibold text-zinc-300 truncate tracking-wide">
+                      {file.name}
+                    </p>
+                    <p className="text-[10px] font-mono tracking-tighter text-zinc-500 uppercase">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
                   </div>
                 </div>
                 <button
@@ -216,11 +297,16 @@ const CaseFile = () => {
             >
               <div className="flex items-center gap-2 px-1">
                 <ShieldCheck size={14} className="text-emerald-400" />
-                <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">Isolated Provisions</h3>
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+                  Isolated Provisions
+                </h3>
               </div>
               <div className="space-y-2 max-h-[22rem] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800">
                 {clauses.map((c, i) => (
-                  <div key={i} className="p-3.5 bg-[#121217]/40 border border-zinc-800/80 rounded-xl hover:border-zinc-700/60 hover:bg-[#14141b]/70 transition-all duration-200 group">
+                  <div
+                    key={i}
+                    className="p-3.5 bg-[#121217]/40 border border-zinc-800/80 rounded-xl hover:border-zinc-700/60 hover:bg-[#14141b]/70 transition-all duration-200 group"
+                  >
                     <div className="text-[10px] font-bold tracking-wider text-emerald-400 mb-1.5 uppercase font-mono">
                       // {c.keyword.replace(/_/g, " ")}
                     </div>
@@ -237,7 +323,26 @@ const CaseFile = () => {
 
       {/* Primary Chat Container */}
       <div className="flex-1 flex flex-col bg-[#09090b] h-screen relative">
-        
+        <div className="px-8 pt-6 pb-2">
+          <div className="mx-auto max-w-3xl flex items-center justify-between rounded-full border border-zinc-800 bg-[#0f0f12]/80 px-3 py-2 backdrop-blur-sm">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+              Workflow
+            </div>
+            <div className="flex items-center gap-2">
+              {slideLabels.map((label, index) => (
+                <div
+                  key={label}
+                  className={`h-2.5 w-16 rounded-full border transition-all duration-300 ${
+                    activeSlide >= index
+                      ? "bg-emerald-500 border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                      : "bg-zinc-800 border-zinc-700"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Chat Message Workspace */}
         <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
           <div className="max-w-3xl mx-auto space-y-6">
@@ -267,7 +372,9 @@ const CaseFile = () => {
                       {message.from === "bot" ? (
                         <TypingText text={message.text} />
                       ) : (
-                        <div className="whitespace-pre-wrap text-zinc-100 font-medium">{message.text}</div>
+                        <div className="whitespace-pre-wrap text-zinc-100 font-medium">
+                          {message.text}
+                        </div>
                       )}
                     </div>
                   </motion.div>
@@ -283,7 +390,11 @@ const CaseFile = () => {
           <div className="max-w-3xl mx-auto relative bg-[#0f0f12] border border-zinc-800 rounded-xl p-2 flex items-center shadow-2xl focus-within:border-emerald-500/30 transition-all duration-300">
             <input
               type="text"
-              placeholder={file ? "Interrogate deep vector space regarding this file..." : "Please initialize parameters by uploading a dossier dossier..."}
+              placeholder={
+                file
+                  ? "Interrogate deep vector space regarding this file..."
+                  : "Please initialize parameters by uploading a dossier dossier..."
+              }
               disabled={!file}
               className="flex-1 px-4 py-3 bg-transparent text-zinc-100 placeholder-zinc-600 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-40"
               value={input}
@@ -292,7 +403,7 @@ const CaseFile = () => {
                 if (e.key === "Enter") handleSend();
               }}
             />
-            
+
             {/* Enter Key Visual Indicator Hint */}
             {input.trim() && file && (
               <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono tracking-tighter text-zinc-500 bg-zinc-900 border border-zinc-800 px-2 py-1 rounded-md mr-2 animate-fade-in">
