@@ -75,17 +75,17 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-xl">
-          <div className="absolute -left-5 top-14 hidden rounded-2xl border border-[#d4af37]/40 bg-[#d4af37]/10 p-3 text-[#f5d77a] shadow-[0_0_30px_rgba(212,175,55,0.18)] backdrop-blur-md md:block">
+        <div className="relative z-20 mx-auto w-full max-w-xl">
+          <div className="absolute -left-5 top-14 hidden rounded-2xl border border-[#d4af37]/40 bg-[#d4af37]/10 p-3 text-[#f5d77a] shadow-[0_0_30px_rgba(212,175,55,0.18)] md:block">
             <Scale size={26} />
           </div>
 
-          <div className="absolute -right-4 bottom-12 hidden rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-3 text-emerald-300 shadow-[0_0_30px_rgba(16,185,129,0.2)] backdrop-blur-md md:block">
+          <div className="absolute -right-4 bottom-12 hidden rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-3 text-emerald-300 shadow-[0_0_30px_rgba(16,185,129,0.2)] md:block">
             <ShieldCheck size={26} />
           </div>
 
-          <div className="rounded-[2rem] border border-slate-700/70 bg-[rgba(15,23,42,0.72)] p-5 shadow-[0_35px_100px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-            <div className="rounded-[1.5rem] border border-slate-700/80 bg-slate-950/80 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+          <div className="rounded-[2rem] border border-white/10 bg-[#0b1220]/95 p-5 shadow-[0_35px_100px_rgba(0,0,0,0.8)] ring-1 ring-white/5">
+            <div className="rounded-[1.5rem] border border-slate-700/80 bg-[#0f172a] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
               <div className="flex items-center justify-between border-b border-slate-700 pb-4">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.22em] text-slate-400">
@@ -104,14 +104,14 @@ const Home = () => {
                 {outputHighlights.map((item) => (
                   <div
                     key={item}
-                    className="rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-3 text-sm text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                    className="rounded-xl border border-slate-600 bg-slate-900/90 px-3 py-3 text-sm text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                   >
                     {item}
                   </div>
                 ))}
               </div>
 
-              <div className="mt-5 rounded-2xl border border-[#d4af37]/35 bg-[#d4af37]/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <div className="mt-5 rounded-2xl border border-[#d4af37]/30 bg-[#d4af37]/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <div className="flex items-center justify-between text-sm text-[#f5d77a]">
                   <span className="font-medium">AI summary</span>
                   <span>82% relevance</span>
